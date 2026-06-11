@@ -1,0 +1,102 @@
+@page
+@model TrainingMatrixApp.Pages.TrainingCourses.DetailsModel
+@{
+    ViewData["Title"] = "Course Details";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-4"><i class="bi bi-journal-text"></i> Course Details</h1>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <a asp-page="Edit" asp-route-id="@Model.Course.Id" class="btn btn-warning">
+                <i class="bi bi-pencil"></i> Edit
+            </a>
+            <a asp-page="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">@Model.Course.Name</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">Course Code</dt>
+                        <dd class="col-sm-7"><code>@(Model.Course.CourseCode ?? "N/A")</code></dd>
+                        <dt class="col-sm-5">Provider</dt>
+                        <dd class="col-sm-7">@(Model.Course.Provider ?? "N/A")</dd>
+                        <dt class="col-sm-5">Category</dt>
+                        <dd class="col-sm-7">
+                            @if (!string.IsNullOrEmpty(Model.Course.Category))
+                            {
+                                <span class="badge bg-secondary">@Model.Course.Category</span>
+                            }
+                            else { <span>N/A</span> }
+                        </dd>
+                        <dt class="col-sm-5">Duration</dt>
+                        <dd class="col-sm-7">@(Model.Course.DurationHours.HasValue ? $"{Model.Course.DurationHours} hours" : "N/A")</dd>
+                        <dt class="col-sm-5">Validity</dt>
+                        <dd class="col-sm-7">@(Model.Course.ValidityMonths.HasValue ? $"{Model.Course.ValidityMonths} months" : "N/A")</dd>
+                        <dt class="col-sm-5">Passing Score</dt>
+                        <dd class="col-sm-7">@(Model.Course.PassingScore.HasValue ? $"{Model.Course.PassingScore}%" : "N/A")</dd>
+                        <dt class="col-sm-5">Cost</dt>
+                        <dd class="col-sm-7">@(Model.Course.Cost.HasValue ? $"£{Model.Course.Cost:0.00}" : "N/A")</dd>
+                    </dl>
+                    @if (!string.IsNullOrEmpty(Model.Course.Description))
+                    {
+                        <hr />
+                        <p class="mb-0">@Model.Course.Description</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-people"></i> Employee Completions (@Model.Course.EmployeeTrainings.Count)</h5>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.Course.EmployeeTrainings.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Employee</th>
+                                        <th>Completed</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var training in Model.Course.EmployeeTrainings)
+                                    {
+                                        <tr>
+                                            <td>@training.Employee?.FullName</td>
+                                            <td>@training.CompletionDate.ToString("dd MMM yyyy")</td>
+                                            <td>
+                                                <span class="badge @(training.Status == "Completed" ? "bg-success" : "bg-warning")">
+                                                    @training.Status
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="p-3 text-muted mb-0">No employees have completed this course yet.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

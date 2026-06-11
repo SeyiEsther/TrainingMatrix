@@ -1,0 +1,150 @@
+@page
+@model TrainingMatrixApp.Pages.Employees.DetailsModel
+@{
+    ViewData["Title"] = "Employee Details";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-4"><i class="bi bi-person-lines-fill"></i> Employee Details</h1>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <a asp-page="Edit" asp-route-id="@Model.Employee.Id" class="btn btn-warning">
+                <i class="bi bi-pencil"></i> Edit
+            </a>
+            <a asp-page="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-5">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-person-circle"></i> @Model.Employee.FullName</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">Employee Number</dt>
+                        <dd class="col-sm-7"><code>@Model.Employee.EmployeeNumber</code></dd>
+
+                        <dt class="col-sm-5">Department</dt>
+                        <dd class="col-sm-7">@Model.Employee.Department?.Name</dd>
+
+                        <dt class="col-sm-5">Email</dt>
+                        <dd class="col-sm-7">
+                            @if (!string.IsNullOrEmpty(Model.Employee.Email))
+                            {
+                                <a href="mailto:@Model.Employee.Email">@Model.Employee.Email</a>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-5">Phone</dt>
+                        <dd class="col-sm-7">@(Model.Employee.PhoneNumber ?? "—")</dd>
+
+                        <dt class="col-sm-5">Shift</dt>
+                        <dd class="col-sm-7">@(Model.Employee.Shift.HasValue ? Model.Employee.Shift.ToString() : "—")</dd>
+
+                        <dt class="col-sm-5">Hire Date</dt>
+                        <dd class="col-sm-7">@Model.Employee.HireDate.ToString("dd MMM yyyy")</dd>
+
+                        <dt class="col-sm-5">Status</dt>
+                        <dd class="col-sm-7">
+                            <span class="badge @(Model.Employee.IsActive ? "bg-success" : "bg-secondary")">
+                                @(Model.Employee.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-7">
+            <!-- Skills -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-tools"></i> Skills (@Model.Employee.Skills.Count)</h5>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.Employee.Skills.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Skill</th>
+                                        <th>Category</th>
+                                        <th>Proficiency</th>
+                                        <th>Acquired</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var skill in Model.Employee.Skills)
+                                    {
+                                        <tr>
+                                            <td>@skill.Skill?.Name</td>
+                                            <td>@skill.Skill?.Category</td>
+                                            <td>
+                                                <span class="badge bg-primary">@skill.ProficiencyLevel / 5</span>
+                                            </td>
+                                            <td>@skill.AcquiredDate.ToString("dd MMM yyyy")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="p-3 text-muted mb-0">No skills recorded.</p>
+                    }
+                </div>
+            </div>
+
+            <!-- Training Records -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-journal-check"></i> Training Records (@Model.Employee.Trainings.Count)</h5>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.Employee.Trainings.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Course</th>
+                                        <th>Completed</th>
+                                        <th>Expires</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var training in Model.Employee.Trainings)
+                                    {
+                                        <tr>
+                                            <td>@training.TrainingCourse?.Name</td>
+                                            <td>@training.CompletionDate.ToString("dd MMM yyyy")</td>
+                                            <td>@(training.ExpiryDate.HasValue ? training.ExpiryDate.Value.ToString("dd MMM yyyy") : "—")</td>
+                                            <td>
+                                                <span class="badge @(training.Status == "Completed" ? "bg-success" : "bg-warning")">
+                                                    @training.Status
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="p-3 text-muted mb-0">No training records.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

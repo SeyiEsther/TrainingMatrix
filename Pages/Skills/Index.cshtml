@@ -1,0 +1,110 @@
+@page
+@model TrainingMatrixApp.Pages.Skills.IndexModel
+@{
+    ViewData["Title"] = "Skills";
+}
+
+<div class="container-fluid">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-4"><i class="bi bi-stars"></i> Skills</h1>
+        </div>
+        <div class="col-auto">
+            <a asp-page="Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Add New Skill
+            </a>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <form method="get">
+                <div class="row g-2">
+                    <div class="col-md-5">
+                        <input type="text" name="searchString" value="@Model.SearchString"
+                               class="form-control" placeholder="Search by name or description...">
+                    </div>
+                    <div class="col-md-4">
+                        <select name="categoryFilter" class="form-select">
+                            <option value="">-- All Categories --</option>
+                            @foreach (var cat in Model.CategoryList)
+                            {
+                                <option value="@cat.Value" selected="@(cat.Value == Model.CategoryFilter)">@cat.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-outline-primary" type="submit">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+                        <a asp-page="Index" class="btn btn-outline-secondary ms-1">
+                            <i class="bi bi-x-circle"></i> Clear
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body p-0">
+            @if (Model.Skills.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var skill in Model.Skills)
+                            {
+                                <tr>
+                                    <td><strong>@skill.Name</strong></td>
+                                    <td><span class="badge bg-secondary">@skill.Category</span></td>
+                                    <td class="text-muted">@(skill.Description?.Length > 80 ? skill.Description[..80] + "..." : skill.Description)</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a asp-page="Edit" asp-route-id="@skill.Id" class="btn btn-warning" title="Edit">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <a asp-page="Delete" asp-route-id="@skill.Id" class="btn btn-danger" title="Delete">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="p-4 text-center text-muted">
+                    <i class="bi bi-inbox fs-3"></i>
+                    <p class="mt-2">No skills found. <a asp-page="Create">Add the first skill</a>.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
