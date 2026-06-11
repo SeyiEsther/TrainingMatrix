@@ -1,0 +1,53 @@
+@page
+@model TrainingMatrixApp.Pages.Employees.DeleteModel
+@{
+    ViewData["Title"] = "Deactivate Employee";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-4"><i class="bi bi-person-x-fill text-danger"></i> Deactivate Employee</h1>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger shadow">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle-fill"></i> Confirm Deactivation</h5>
+                </div>
+                <div class="card-body">
+                    <p class="lead">Are you sure you want to deactivate the following employee?</p>
+                    <dl class="row">
+                        <dt class="col-sm-4">Name</dt>
+                        <dd class="col-sm-8"><strong>@Model.Employee.FullName</strong></dd>
+
+                        <dt class="col-sm-4">Employee #</dt>
+                        <dd class="col-sm-8"><code>@Model.Employee.EmployeeNumber</code></dd>
+
+                        <dt class="col-sm-4">Department</dt>
+                        <dd class="col-sm-8">@Model.Employee.Department?.Name</dd>
+
+                        <dt class="col-sm-4">Hire Date</dt>
+                        <dd class="col-sm-8">@Model.Employee.HireDate.ToString("dd MMM yyyy")</dd>
+                    </dl>
+                    <div class="alert alert-warning">
+                        <i class="bi bi-info-circle"></i> This will deactivate the employee record. The employee's data will be retained.
+                    </div>
+                    <form method="post">
+                        <input type="hidden" asp-for="Employee.Id" />
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-person-x-fill"></i> Yes, Deactivate
+                            </button>
+                            <a asp-page="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

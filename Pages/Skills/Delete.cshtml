@@ -1,0 +1,55 @@
+@page
+@model TrainingMatrixApp.Pages.Skills.DeleteModel
+@{
+    ViewData["Title"] = "Delete Skill";
+}
+
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-4 text-danger"><i class="bi bi-trash"></i> Delete Skill</h1>
+        </div>
+    </div>
+
+    <div class="alert alert-warning" role="alert">
+        <h4 class="alert-heading">Warning!</h4>
+        <p>Are you sure you want to deactivate this skill? This will mark the skill as inactive.</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">Skill Information</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Name:</dt>
+                        <dd class="col-sm-8">@Model.Skill.Name</dd>
+
+                        <dt class="col-sm-4">Category:</dt>
+                        <dd class="col-sm-8"><span class="badge bg-secondary">@Model.Skill.Category</span></dd>
+
+                        <dt class="col-sm-4">Description:</dt>
+                        <dd class="col-sm-8">@(Model.Skill.Description ?? "N/A")</dd>
+
+                        <dt class="col-sm-4">Employee Skills:</dt>
+                        <dd class="col-sm-8">@Model.EmployeeSkillCount employees have this skill</dd>
+                    </dl>
+
+                    <form method="post">
+                        <input type="hidden" asp-for="Skill.Id" />
+                        <div class="mt-3 d-flex gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Confirm Deactivate
+                            </button>
+                            <a asp-page="Index" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

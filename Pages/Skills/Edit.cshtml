@@ -1,0 +1,67 @@
+@page
+@model TrainingMatrixApp.Pages.Skills.EditModel
+@{
+    ViewData["Title"] = "Edit Skill";
+}
+
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-4"><i class="bi bi-pencil-square"></i> Edit Skill</h1>
+        </div>
+        <div class="col-auto">
+            <a asp-page="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0">Edit Skill Details</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                        <input type="hidden" asp-for="Skill.Id" />
+                        <input type="hidden" asp-for="Skill.IsActive" />
+                        <input type="hidden" asp-for="Skill.CreatedDate" />
+
+                        <div class="mb-3">
+                            <label asp-for="Skill.Name" class="form-label fw-semibold"></label>
+                            <input asp-for="Skill.Name" class="form-control" />
+                            <span asp-validation-for="Skill.Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Skill.Category" class="form-label fw-semibold"></label>
+                            <input asp-for="Skill.Category" class="form-control" />
+                            <span asp-validation-for="Skill.Category" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Skill.Description" class="form-label fw-semibold"></label>
+                            <textarea asp-for="Skill.Description" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Skill.Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="mt-4 d-flex gap-2">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-save"></i> Save Changes
+                            </button>
+                            <a asp-page="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
