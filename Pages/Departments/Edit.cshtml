@@ -1,0 +1,89 @@
+@page
+@model TrainingMatrixApp.Pages.Departments.EditModel
+@{
+    ViewData["Title"] = "Edit Department";
+}
+
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-4">Edit Department</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                        
+                        <input type="hidden" asp-for="Department.Id" />
+                        <input type="hidden" asp-for="Department.IsActive" />
+                        <input type="hidden" asp-for="Department.CreatedDate" />
+
+                        <div class="alert alert-info">
+                            <strong>Current Type:</strong> 
+                            <span class="badge bg-primary">@Model.Department.DepartmentType</span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Department.Name" class="form-label"></label>
+                            <input asp-for="Department.Name" class="form-control" />
+                            <span asp-validation-for="Department.Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Department.Description" class="form-label"></label>
+                            <textarea asp-for="Department.Description" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Department.Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Department.ParentDepartmentId" class="form-label"></label>
+                            <select asp-for="Department.ParentDepartmentId" asp-items="Model.ParentDepartmentList" 
+                                    class="form-select">
+                                <option value="">-- None (Top-Level Department) --</option>
+                            </select>
+                            <span asp-validation-for="Department.ParentDepartmentId" class="text-danger"></span>
+                            <small class="form-text text-muted">
+                                Change parent department structure (use with caution)
+                            </small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Department.HeadOfDepartmentId" class="form-label"></label>
+                            <select asp-for="Department.HeadOfDepartmentId" asp-items="Model.HeadOfDepartmentList" 
+                                    class="form-select">
+                                <option value="">-- Not Assigned --</option>
+                            </select>
+                            <span asp-validation-for="Department.HeadOfDepartmentId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Department.SapWorkCentre" class="form-label">SAP Work Centre</label>
+                            <input asp-for="Department.SapWorkCentre" class="form-control" />
+                            <span asp-validation-for="Department.SapWorkCentre" class="text-danger"></span>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Save Changes
+                            </button>
+                            <a asp-page="Index" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                            <a asp-page="Details" asp-route-id="@Model.Department.Id" class="btn btn-info">
+                                <i class="bi bi-info-circle"></i> View Details
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
