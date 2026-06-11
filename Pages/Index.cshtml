@@ -4,140 +4,138 @@
     ViewData["Title"] = "Dashboard";
 }
 
-<div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col">
-            <h1 class="display-4"><i class="bi bi-speedometer2"></i> Dashboard</h1>
-            <p class="text-muted">Training Matrix - Overview</p>
+<!-- Page Header -->
+<div class="page-header anim">
+    <div>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">Welcome back &mdash; here's what's happening today.</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <a asp-page="/Compliance/Index" class="btn btn-primary">
+            <i class="bi bi-shield-check"></i> View Compliance
+        </a>
+    </div>
+</div>
+
+<!-- Stat Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3 anim">
+        <div class="stat-card sc-indigo shadow">
+            <div class="sc-icon"><i class="bi bi-building"></i></div>
+            <div class="sc-value">@Model.TotalDepartments</div>
+            <div class="sc-label">Active Departments</div>
+            <a asp-page="/Departments/Index" class="sc-link">
+                Explore <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3 anim">
+        <div class="stat-card sc-emerald shadow">
+            <div class="sc-icon"><i class="bi bi-people-fill"></i></div>
+            <div class="sc-value">@Model.TotalEmployees</div>
+            <div class="sc-label">Active Employees</div>
+            <a asp-page="/Employees/Index" class="sc-link">
+                Explore <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3 anim">
+        <div class="stat-card sc-sky shadow">
+            <div class="sc-icon"><i class="bi bi-stars"></i></div>
+            <div class="sc-value">@Model.TotalSkills</div>
+            <div class="sc-label">Total Skills</div>
+            <a asp-page="/Skills/Index" class="sc-link">
+                Explore <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3 anim">
+        <div class="stat-card sc-amber shadow">
+            <div class="sc-icon"><i class="bi bi-journal-bookmark-fill"></i></div>
+            <div class="sc-value">@Model.TotalCourses</div>
+            <div class="sc-label">Training Courses</div>
+            <a asp-page="/TrainingCourses/Index" class="sc-link">
+                Explore <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row">
+    <div class="col-lg-8 anim">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">
+                    <i class="bi bi-activity ct-icon"></i>
+                    Recent Activity
+                </h5>
+                <span class="badge bg-secondary">Last 10 events</span>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.RecentAuditLogs.Any())
+                {
+                    <div class="activity-feed">
+                        @foreach (var log in Model.RecentAuditLogs)
+                        {
+                            <div class="activity-row">
+                                <div class="activity-dot @(log.ActionType == "Add" ? "dot-add" : log.ActionType == "Delete" ? "dot-delete" : "dot-update")"></div>
+                                <div class="activity-body">
+                                    <div class="activity-desc">
+                                        <span class="badge @(log.ActionType == "Add" ? "bg-success" : log.ActionType == "Delete" ? "bg-danger" : "bg-primary") me-1">@log.ActionType</span>
+                                        @log.EntityType
+                                        @if (!string.IsNullOrEmpty(log.Details))
+                                        {
+                                            <span class="text-color-muted text-sm"> — @log.Details</span>
+                                        }
+                                    </div>
+                                    <div class="activity-meta">
+                                        <i class="bi bi-clock me-1"></i>@log.Timestamp.ToLocalTime().ToString("dd MMM yyyy, HH:mm")
+                                        @if (!string.IsNullOrEmpty(log.PerformedBy))
+                                        {
+                                            <span class="ms-2"><i class="bi bi-person me-1"></i>@log.PerformedBy</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <span class="empty-state-icon"><i class="bi bi-inbox"></i></span>
+                        <h6>No activity yet</h6>
+                        <p>Actions like adding employees or updating skills will appear here.</p>
+                    </div>
+                }
+            </div>
         </div>
     </div>
 
-    <!-- Summary Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3 mb-3">
-            <div class="card text-white bg-primary shadow h-100">
-                <div class="card-body d-flex align-items-center">
-                    <div class="me-3">
-                        <i class="bi bi-building" style="font-size: 2.5rem;"></i>
-                    </div>
-                    <div>
-                        <div class="fs-2 fw-bold">@Model.TotalDepartments</div>
-                        <div class="small">Active Departments</div>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <a asp-page="/Departments/Index" class="text-white text-decoration-none small">
-                        View Departments <i class="bi bi-arrow-right"></i>
-                    </a>
-                </div>
+    <!-- Quick Links -->
+    <div class="col-lg-4 anim">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title"><i class="bi bi-lightning-fill ct-icon"></i> Quick Actions</h5>
             </div>
-        </div>
-        <div class="col-md-3 mb-3">
-            <div class="card text-white bg-success shadow h-100">
-                <div class="card-body d-flex align-items-center">
-                    <div class="me-3">
-                        <i class="bi bi-people-fill" style="font-size: 2.5rem;"></i>
-                    </div>
-                    <div>
-                        <div class="fs-2 fw-bold">@Model.TotalEmployees</div>
-                        <div class="small">Active Employees</div>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <a asp-page="/Employees/Index" class="text-white text-decoration-none small">
-                        View Employees <i class="bi bi-arrow-right"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-3">
-            <div class="card text-white bg-info shadow h-100">
-                <div class="card-body d-flex align-items-center">
-                    <div class="me-3">
-                        <i class="bi bi-tools" style="font-size: 2.5rem;"></i>
-                    </div>
-                    <div>
-                        <div class="fs-2 fw-bold">@Model.TotalSkills</div>
-                        <div class="small">Total Skills</div>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <a asp-page="/Skills/Index" class="text-white text-decoration-none small">
-                        View Skills <i class="bi bi-arrow-right"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-3">
-            <div class="card text-white bg-warning shadow h-100">
-                <div class="card-body d-flex align-items-center">
-                    <div class="me-3">
-                        <i class="bi bi-journal-bookmark-fill" style="font-size: 2.5rem;"></i>
-                    </div>
-                    <div>
-                        <div class="fs-2 fw-bold">@Model.TotalCourses</div>
-                        <div class="small">Training Courses</div>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <a asp-page="/TrainingCourses/Index" class="text-white text-decoration-none small">
-                        View Courses <i class="bi bi-arrow-right"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Recent Audit Log -->
-    <div class="row">
-        <div class="col">
-            <div class="card shadow">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0"><i class="bi bi-clock-history"></i> Recent Activity (Last 10 Entries)</h5>
-                </div>
-                <div class="card-body p-0">
-                    @if (Model.RecentAuditLogs.Any())
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Timestamp</th>
-                                        <th>Action</th>
-                                        <th>Entity</th>
-                                        <th>Entity ID</th>
-                                        <th>Details</th>
-                                        <th>Performed By</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var log in Model.RecentAuditLogs)
-                                    {
-                                        <tr>
-                                            <td class="text-nowrap">@log.Timestamp.ToLocalTime().ToString("dd MMM yyyy HH:mm")</td>
-                                            <td>
-                                                <span class="badge @(log.ActionType == "Add" ? "bg-success" : log.ActionType == "Delete" ? "bg-danger" : "bg-primary")">
-                                                    @log.ActionType
-                                                </span>
-                                            </td>
-                                            <td>@log.EntityType</td>
-                                            <td>@log.EntityId</td>
-                                            <td>@log.Details</td>
-                                            <td>@log.PerformedBy</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="p-4 text-center text-muted">
-                            <i class="bi bi-inbox fs-3"></i>
-                            <p class="mt-2">No audit log entries yet.</p>
-                        </div>
-                    }
-                </div>
+            <div class="card-body d-flex flex-column gap-2">
+                <a asp-page="/Employees/Create" class="btn btn-outline-primary w-100 justify-content-start">
+                    <i class="bi bi-person-plus-fill"></i> Add Employee
+                </a>
+                <a asp-page="/Departments/Create" class="btn btn-outline-primary w-100 justify-content-start">
+                    <i class="bi bi-building-add"></i> Add Department
+                </a>
+                <a asp-page="/Skills/Create" class="btn btn-outline-primary w-100 justify-content-start">
+                    <i class="bi bi-patch-plus-fill"></i> Add Skill
+                </a>
+                <a asp-page="/TrainingCourses/Create" class="btn btn-outline-primary w-100 justify-content-start">
+                    <i class="bi bi-plus-circle-fill"></i> Add Training Course
+                </a>
+                <hr class="my-1" style="border-color: var(--border);">
+                <a asp-page="/Compliance/Index" class="btn btn-primary w-100 justify-content-start">
+                    <i class="bi bi-shield-check"></i> Compliance Report
+                </a>
             </div>
         </div>
     </div>

@@ -1,150 +1,176 @@
 @page
 @model TrainingMatrixApp.Pages.Compliance.IndexModel
 @{
-    ViewData["Title"] = "Compliance Dashboard";
+    ViewData["Title"] = "Compliance";
 }
 
-<div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col">
-            <h1 class="display-4"><i class="bi bi-shield-check"></i> Compliance Dashboard</h1>
-            <p class="text-muted">Department skill compliance status</p>
-        </div>
+<div class="page-header anim">
+    <div>
+        <h1 class="page-title">Compliance Dashboard</h1>
+        <p class="page-subtitle">Track department skill compliance and identify gaps.</p>
     </div>
-
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <form method="get">
-                <div class="row g-2">
-                    <div class="col-md-7">
-                        <select name="departmentId" class="form-select">
-                            <option value="">-- All Departments --</option>
-                            @foreach (var dept in Model.DepartmentList)
-                            {
-                                <option value="@dept.Value" selected="@(dept.Value == Model.SelectedDepartmentId?.ToString())">@dept.Text</option>
-                            }
-                        </select>
-                    </div>
-                    <div class="col-auto">
-                        <button class="btn btn-outline-primary" type="submit">
-                            <i class="bi bi-filter"></i> Filter
-                        </button>
-                        <a asp-page="Index" class="btn btn-outline-secondary ms-1">
-                            <i class="bi bi-x-circle"></i> Clear
-                        </a>
-                    </div>
-                </div>
-            </form>
-        </div>
-        <div class="col-md-6 text-end">
-            <span class="badge bg-success me-1">Met</span>
-            <span class="badge bg-warning me-1">Nearly Met</span>
-            <span class="badge bg-danger">Not Met</span>
-        </div>
-    </div>
-
-    @if (Model.ComplianceData.Any())
-    {
-        <!-- Summary Cards -->
-        <div class="row mb-4">
-            <div class="col-md-4">
-                <div class="card text-white bg-success shadow">
-                    <div class="card-body text-center">
-                        <div class="fs-3 fw-bold">@Model.ComplianceData.Count(r => r.ComplianceStatus == "Met")</div>
-                        <div>Requirements Met</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card text-white bg-warning shadow">
-                    <div class="card-body text-center">
-                        <div class="fs-3 fw-bold">@Model.ComplianceData.Count(r => r.ComplianceStatus == "Nearly Met")</div>
-                        <div>Nearly Met</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card text-white bg-danger shadow">
-                    <div class="card-body text-center">
-                        <div class="fs-3 fw-bold">@Model.ComplianceData.Count(r => r.ComplianceStatus == "Not Met")</div>
-                        <div>Not Met</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card shadow">
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Department</th>
-                                <th>Skill</th>
-                                <th>Priority</th>
-                                <th>Required (Count / Level)</th>
-                                <th>Qualified</th>
-                                <th>Shortfall</th>
-                                <th>Compliance %</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var row in Model.ComplianceData)
-                            {
-                                <tr class="@(row.ComplianceStatus == "Not Met" ? "table-danger" : row.ComplianceStatus == "Nearly Met" ? "table-warning" : "")">
-                                    <td>@row.DepartmentName</td>
-                                    <td>@row.SkillName</td>
-                                    <td>
-                                        <span class="badge @row.GetPriorityBadgeClass()">@row.Priority</span>
-                                    </td>
-                                    <td>@row.RequiredCount employees at level @row.MinimumProficiencyLevel+</td>
-                                    <td>
-                                        <span class="fw-bold">@row.CurrentQualifiedCount</span>
-                                    </td>
-                                    <td>
-                                        @if (row.ShortfallCount > 0)
-                                        {
-                                            <span class="text-danger fw-bold">@row.ShortfallCount</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-success">0</span>
-                                        }
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <div class="progress flex-grow-1" style="height: 8px;">
-                                                <div class="progress-bar @(row.ComplianceStatus == "Met" ? "bg-success" : row.ComplianceStatus == "Nearly Met" ? "bg-warning" : "bg-danger")"
-                                                     style="width: @row.CompliancePercentage%"></div>
-                                            </div>
-                                            <small>@row.CompliancePercentage%</small>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge @row.GetStatusBadgeClass()">@row.ComplianceStatus</span>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    }
-    else
-    {
-        <div class="alert alert-info">
-            <i class="bi bi-info-circle"></i>
-            No compliance requirements found.
-            @if (Model.SelectedDepartmentId.HasValue)
+    <form method="get" class="d-flex gap-2 align-items-center flex-wrap">
+        <select name="departmentId" class="form-select" style="min-width:200px;">
+            <option value="">All Departments</option>
+            @foreach (var dept in Model.DepartmentList)
             {
-                <span> Try clearing the department filter.</span>
+                <option value="@dept.Value" selected="@(dept.Value == Model.SelectedDepartmentId?.ToString())">@dept.Text</option>
             }
-            else
-            {
-                <span> Configure skill requirements on departments to see compliance data.</span>
-            }
-        </div>
-    }
+        </select>
+        <button class="btn btn-primary" type="submit">
+            <i class="bi bi-funnel-fill"></i> Filter
+        </button>
+        @if (Model.SelectedDepartmentId.HasValue)
+        {
+            <a asp-page="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-x"></i> Clear
+            </a>
+        }
+    </form>
 </div>
+
+@if (Model.ComplianceData.Any())
+{
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-4 anim">
+            <div class="card" style="border-left:3px solid var(--success);">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div style="width:44px;height:44px;background:#dcfce7;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:var(--success);flex-shrink:0;">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                    <div>
+                        <div style="font-size:1.8rem;font-weight:900;color:var(--success);line-height:1;letter-spacing:-0.04em;">
+                            @Model.ComplianceData.Count(r => r.ComplianceStatus == "Met")
+                        </div>
+                        <div class="text-sm text-color-muted fw-600">Requirements Met</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4 anim">
+            <div class="card" style="border-left:3px solid var(--warning);">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div style="width:44px;height:44px;background:#fef9c3;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:var(--warning);flex-shrink:0;">
+                        <i class="bi bi-exclamation-circle-fill"></i>
+                    </div>
+                    <div>
+                        <div style="font-size:1.8rem;font-weight:900;color:var(--warning);line-height:1;letter-spacing:-0.04em;">
+                            @Model.ComplianceData.Count(r => r.ComplianceStatus == "Nearly Met")
+                        </div>
+                        <div class="text-sm text-color-muted fw-600">Nearly Met</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4 anim">
+            <div class="card" style="border-left:3px solid var(--danger);">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div style="width:44px;height:44px;background:#fee2e2;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:var(--danger);flex-shrink:0;">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </div>
+                    <div>
+                        <div style="font-size:1.8rem;font-weight:900;color:var(--danger);line-height:1;letter-spacing:-0.04em;">
+                            @Model.ComplianceData.Count(r => r.ComplianceStatus == "Not Met")
+                        </div>
+                        <div class="text-sm text-color-muted fw-600">Not Met</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Compliance Table -->
+    <div class="card anim">
+        <div class="card-header">
+            <h5 class="card-title"><i class="bi bi-table ct-icon"></i> Compliance Details</h5>
+            <div class="d-flex gap-1">
+                <span class="badge bg-success">Met</span>
+                <span class="badge bg-warning">Nearly Met</span>
+                <span class="badge bg-danger">Not Met</span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                            <th>Skill</th>
+                            <th>Priority</th>
+                            <th>Required</th>
+                            <th>Qualified</th>
+                            <th>Shortfall</th>
+                            <th style="min-width:160px;">Compliance</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in Model.ComplianceData)
+                        {
+                            var rowClass = row.ComplianceStatus == "Not Met" ? "row-danger" :
+                                          row.ComplianceStatus == "Nearly Met" ? "row-warning" : "row-success";
+                            <tr class="@rowClass">
+                                <td class="fw-600">@row.DepartmentName</td>
+                                <td>@row.SkillName</td>
+                                <td><span class="badge @row.GetPriorityBadgeClass()">@row.Priority</span></td>
+                                <td class="text-sm">
+                                    <span class="fw-600">@row.RequiredCount</span>
+                                    <span class="text-color-muted"> @ level @row.MinimumProficiencyLevel+</span>
+                                </td>
+                                <td>
+                                    <span class="fw-700" style="color:@(row.CurrentQualifiedCount >= row.RequiredCount ? "var(--success)" : "var(--danger)");">
+                                        @row.CurrentQualifiedCount
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (row.ShortfallCount > 0)
+                                    {
+                                        <span class="fw-700 text-color-danger">-@row.ShortfallCount</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-color-success fw-600">✓</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="compliance-score">
+                                        <div class="progress flex-grow-1" style="height:6px;">
+                                            <div class="progress-bar @(row.ComplianceStatus == "Met" ? "bg-success" : row.ComplianceStatus == "Nearly Met" ? "bg-warning" : "bg-danger")"
+                                                 style="width:@row.CompliancePercentage%"></div>
+                                        </div>
+                                        <span class="compliance-pct text-xs fw-700" style="color:@(row.ComplianceStatus == "Met" ? "var(--success)" : row.ComplianceStatus == "Nearly Met" ? "var(--warning)" : "var(--danger)");">
+                                            @row.CompliancePercentage%
+                                        </span>
+                                    </div>
+                                </td>
+                                <td><span class="badge @row.GetStatusBadgeClass()">@row.ComplianceStatus</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card anim">
+        <div class="card-body">
+            <div class="empty-state">
+                <span class="empty-state-icon"><i class="bi bi-shield"></i></span>
+                <h6>No compliance data</h6>
+                <p>
+                    @if (Model.SelectedDepartmentId.HasValue)
+                    {
+                        <span>No requirements found for the selected department. <a asp-page="Index">Clear filter</a></span>
+                    }
+                    else
+                    {
+                        <span>Configure skill requirements on departments to see compliance data.</span>
+                    }
+                </p>
+            </div>
+        </div>
+    </div>
+}
