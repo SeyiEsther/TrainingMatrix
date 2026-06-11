@@ -9,22 +9,22 @@ namespace TrainingMatrixApp.Pages.Compliance;
 
 public class IndexModel : PageModel
 {
-    private readonly DepartmentSkillComplianceService _complianceService;
     private readonly TrainingMatrixDbContext _context;
+    private readonly DepartmentSkillComplianceService _complianceService;
 
-    public IndexModel(DepartmentSkillComplianceService complianceService, TrainingMatrixDbContext context)
+    public IndexModel(TrainingMatrixDbContext context, DepartmentSkillComplianceService complianceService)
     {
-        _complianceService = complianceService;
         _context = context;
+        _complianceService = complianceService;
     }
 
     public List<DepartmentSkillComplianceViewModel> ComplianceData { get; set; } = new();
-    public int? DepartmentFilter { get; set; }
     public SelectList DepartmentList { get; set; } = default!;
+    public int? SelectedDepartmentId { get; set; }
 
-    public async Task OnGetAsync(int? departmentFilter)
+    public async Task OnGetAsync(int? departmentId)
     {
-        DepartmentFilter = departmentFilter;
+        SelectedDepartmentId = departmentId;
 
         var departments = await _context.Departments
             .Where(d => d.IsActive)
@@ -32,6 +32,6 @@ public class IndexModel : PageModel
             .ToListAsync();
         DepartmentList = new SelectList(departments, "Id", "Name");
 
-        ComplianceData = await _complianceService.GetComplianceReportAsync(departmentFilter);
+        ComplianceData = await _complianceService.GetComplianceReportAsync(departmentId);
     }
 }
