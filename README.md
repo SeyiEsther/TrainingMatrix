@@ -1,75 +1,68 @@
 # Training Matrix
 
-An ASP.NET Core 10 Razor Pages application for managing employee training, skills, and compliance.
+A web application for managing employee training, skills, and compliance built with ASP.NET Core 10 Razor Pages.
 
-## Features
+## What It Does
 
-- **Department Management** – Hierarchical departments with sub-departments and heads of department
-- **Employee Management** – Track employees, their department assignments, and transfer history
-- **Skills Catalogue** – Define skills with categories and proficiency levels
-- **Training Courses** – Manage training course catalogue with validity and scoring
-- **Compliance Dashboard** – View per-department skill compliance against defined requirements
-- **Audit Logging** – Track key changes across the system
+- **Departments**: Manage organisational departments and sub-departments
+- **Employees**: Track employees, their departments, hire dates, and contact info
+- **Skills**: Define skills with categories and descriptions
+- **Training Courses**: Manage training courses with providers, duration, cost, and validity
+- **Compliance Dashboard**: View how many employees in each department meet skill requirements
+- **Audit Log**: Track all create/update/delete actions with timestamps
 
-## Technology Stack
+## Prerequisites
 
-- ASP.NET Core 10 Razor Pages
-- Entity Framework Core 10 with SQL Server
-- Bootstrap 5
-- Windows Authentication
+- .NET 10 SDK
+- SQL Server (local or remote)
 
 ## Setup
 
-### Prerequisites
+### Option A: Restore database backup
 
-- .NET 10 SDK
-- SQL Server (2019 or later recommended)
-
-### Database Setup
-
-**Option A – Restore from backup:**
-
-```
-RESTORE DATABASE TrainingMatrix
-FROM DISK = 'path\to\backup.bak'
-WITH MOVE 'TrainingMatrix' TO 'C:\Data\TrainingMatrix.mdf',
-     MOVE 'TrainingMatrix_log' TO 'C:\Data\TrainingMatrix_log.ldf'
-```
-
-**Option B – Run migrations:**
+Restore `TrainingMatrixDb.bak` to your SQL Server instance using SQL Server Management Studio (SSMS) or:
 
 ```bash
-dotnet ef database update
+sqlcmd -S <server> -Q "RESTORE DATABASE TrainingMatrix FROM DISK='<path>\TrainingMatrixDb.bak'"
 ```
 
-### Connection String
+### Option B: Run the SQL script
 
-Update the connection string in `appsettings.json` to point to your SQL Server instance:
+```bash
+sqlcmd -S <server> -i script.sql
+```
+
+To load seed data:
+
+```bash
+sqlcmd -S <server> -d TrainingMatrix -i seeddata.sql
+```
+
+## Configuration
+
+Update the connection string in `appsettings.json`:
 
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=YOUR_SERVER;Database=TrainingMatrix;Trusted_Connection=True;TrustServerCertificate=True;"
+    "DefaultConnection": "Server=<your-server>;Database=TrainingMatrix;Trusted_Connection=True;TrustServerCertificate=True;"
   }
 }
 ```
 
-Replace `YOUR_SERVER` with your SQL Server instance name (e.g. `localhost`, `.\SQLEXPRESS`, or a named instance).
-
 ## Running the Application
 
 ```bash
-# Restore NuGet packages
 dotnet restore
-
-# Run the application
 dotnet run
 ```
 
-The application will be available at `https://localhost:5001` (or the port shown in the console output).
+The application uses Windows Authentication. Ensure your IIS or Kestrel environment supports Negotiate authentication.
 
-## Notes
+## Tech Stack
 
-- The application uses **Windows Authentication**. Ensure IIS or Kestrel is configured for Windows Auth in your environment.
-- For development, you may need to enable Windows Authentication in `launchSettings.json`.
-- File uploads are stored under `wwwroot/uploads/training/`.
+- ASP.NET Core 10 Razor Pages
+- Entity Framework Core 10
+- SQL Server
+- Bootstrap 5
+- Windows Authentication
