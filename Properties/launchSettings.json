@@ -1,4 +1,20 @@
 {
+<<<<<<< HEAD
+<<<<<<< HEAD
+  "profiles": {
+    "TrainingSkillsApp": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:56088;http://localhost:56089"
+    }
+  }
+}
+=======
+=======
+>>>>>>> 7d276ce9ee35239d800e59069bb191122a36563b
   "$schema": "https://json.schemastore.org/launchsettings.json",
   "profiles": {
     "TrainingMatrixApp": {
@@ -12,3 +28,7 @@
     }
   }
 }
+<<<<<<< HEAD
+>>>>>>> 7d276ce9ee35239d800e59069bb191122a36563b
+=======
+>>>>>>> 7d276ce9ee35239d800e59069bb191122a36563b
