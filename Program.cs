@@ -5,20 +5,25 @@ using TrainingMatrixApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container
 builder.Services.AddRazorPages();
 
-// Configure SQL Server for on-premises
-builder.Services.AddDbContext<TrainingMatrixDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? "Data Source=App_Data/TrainingMatrix.db";
 
-// Register application services
+var dbDirectory = Path.GetDirectoryName(connectionString.Replace("Data Source=", "", StringComparison.OrdinalIgnoreCase).Trim());
+if (!string.IsNullOrEmpty(dbDirectory))
+{
+    Directory.CreateDirectory(dbDirectory);
+}
+
+builder.Services.AddDbContext<TrainingMatrixDbContext>(options =>
+    options.UseSqlite(connectionString));
+
 builder.Services.AddScoped<ITrainingMatrixService, TrainingMatrixService>();
 builder.Services.AddScoped<IEmployeeTransferService, EmployeeTransferService>();
 builder.Services.AddScoped<DepartmentSkillComplianceService>();
 builder.Services.AddScoped<IAuditService, AuditService>();
 
-// Add session support for user context
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromDays(7);
@@ -26,25 +31,32 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
-   .AddNegotiate();
 
-builder.Services.AddAuthorization(options =>
+if (OperatingSystem.IsWindows())
 {
-    // By default, all incoming requests will be authorized according to the default policy.
-    options.FallbackPolicy = options.DefaultPolicy;
-});
+    builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
+        .AddNegotiate();
 
-// Configure file storage options
+    builder.Services.AddAuthorization(options =>
+    {
+        options.FallbackPolicy = options.DefaultPolicy;
+    });
+}
+else
+{
+    builder.Services.AddAuthorization();
+}
+
 builder.Services.Configure<FileStorageOptions>(
     builder.Configuration.GetSection("FileStorage"));
 
-// Register file storage service
 builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
+var recreateDatabase = app.Configuration.GetValue<bool>("Database:RecreateOnStartup");
+await DbInitializer.InitializeAsync(app.Services, recreateDatabase);
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
@@ -55,8 +67,13 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseSession();
-app.UseAuthentication();
-app.UseAuthorization();
+
+if (OperatingSystem.IsWindows())
+{
+    app.UseAuthentication();
+    app.UseAuthorization();
+}
+
 app.MapRazorPages()
    .WithStaticAssets();
 

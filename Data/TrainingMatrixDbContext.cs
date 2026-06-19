@@ -21,7 +21,6 @@ public class TrainingMatrixDbContext : DbContext
     public DbSet<DepartmentSkillRequirement> DepartmentSkillRequirements { get; set; }
     public DbSet<TransferHistory> TransferHistory { get; set; }
     public DbSet<TrainingAttachment> TrainingAttachments { get; set; }
-
     public DbSet<TrainingTask> TrainingTasks { get; set; }
     public DbSet<TrainingTaskSkill> TrainingTaskSkills { get; set; }
     public DbSet<EmployeeTrainingTask> EmployeeTrainingTasks { get; set; }
@@ -32,7 +31,6 @@ public class TrainingMatrixDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        // Department configuration
         modelBuilder.Entity<Department>()
             .HasOne(d => d.ParentDepartment)
             .WithMany(d => d.SubDepartments)
@@ -43,9 +41,21 @@ public class TrainingMatrixDbContext : DbContext
             .HasOne(d => d.HeadOfDepartment)
             .WithMany()
             .HasForeignKey(d => d.HeadOfDepartmentId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.SetNull);
 
-        // Employee configuration
+        modelBuilder.Entity<Department>()
+            .Property(d => d.Name)
+            .HasMaxLength(100)
+            .IsRequired();
+
+        modelBuilder.Entity<Department>()
+            .Property(d => d.Description)
+            .HasMaxLength(500);
+
+        modelBuilder.Entity<Department>()
+            .Property(d => d.SapWorkCentre)
+            .HasMaxLength(50);
+
         modelBuilder.Entity<Employee>()
             .HasOne(e => e.Department)
             .WithMany(d => d.Employees)
@@ -60,7 +70,6 @@ public class TrainingMatrixDbContext : DbContext
             .HasIndex(e => e.Email)
             .IsUnique();
 
-        // Skill configuration
         modelBuilder.Entity<Skill>()
             .HasIndex(s => s.Name)
             .IsUnique();
@@ -82,7 +91,6 @@ public class TrainingMatrixDbContext : DbContext
             .Property(s => s.Description)
             .HasMaxLength(500);
 
-        // DepartmentSkillRequirement configuration
         modelBuilder.Entity<DepartmentSkillRequirement>()
             .HasOne(dsr => dsr.Department)
             .WithMany(d => d.SkillRequirements)
@@ -95,23 +103,19 @@ public class TrainingMatrixDbContext : DbContext
             .HasForeignKey(dsr => dsr.SkillId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Ensure unique department-skill requirement combination
         modelBuilder.Entity<DepartmentSkillRequirement>()
             .HasIndex(dsr => new { dsr.DepartmentId, dsr.SkillId })
             .IsUnique();
 
-        // Add check constraints
         modelBuilder.Entity<DepartmentSkillRequirement>()
-            .ToTable(t => t.HasCheckConstraint("CK_DepartmentSkillRequirement_RequiredCount", 
-                "[RequiredCount] >= 1 AND [RequiredCount] <= 100"));
+            .ToTable(t => t.HasCheckConstraint(
+                "CK_DepartmentSkillRequirement_RequiredCount",
+                "RequiredCount >= 1 AND RequiredCount <= 100"));
 
         modelBuilder.Entity<DepartmentSkillRequirement>()
-            .ToTable(t => t.HasCheckConstraint("CK_DepartmentSkillRequirement_MinimumProficiencyLevel", 
-                "[MinimumProficiencyLevel] >= 1 AND [MinimumProficiencyLevel] <= 5"));
-
-        modelBuilder.Entity<DepartmentSkillRequirement>()
-            .ToTable(t => t.HasCheckConstraint("CK_DepartmentSkillRequirement_Priority", 
-                "[Priority] IN ('Low', 'Medium', 'High', 'Critical')"));
+            .ToTable(t => t.HasCheckConstraint(
+                "CK_DepartmentSkillRequirement_MinimumProficiencyLevel",
+                "MinimumProficiencyLevel >= 1 AND MinimumProficiencyLevel <= 5"));
 
         modelBuilder.Entity<DepartmentSkillRequirement>()
             .Property(dsr => dsr.Priority)
@@ -123,7 +127,6 @@ public class TrainingMatrixDbContext : DbContext
             .Property(dsr => dsr.Notes)
             .HasMaxLength(500);
 
-        // EmployeeTraining configuration
         modelBuilder.Entity<EmployeeTraining>()
             .HasOne(et => et.Employee)
             .WithMany(e => e.Trainings)
@@ -136,7 +139,6 @@ public class TrainingMatrixDbContext : DbContext
             .HasForeignKey(et => et.TrainingCourseId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // EmployeeSkill configuration
         modelBuilder.Entity<EmployeeSkill>()
             .HasOne(es => es.Employee)
             .WithMany(e => e.Skills)
@@ -149,21 +151,19 @@ public class TrainingMatrixDbContext : DbContext
             .HasForeignKey(es => es.SkillId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Ensure unique employee-skill combination
         modelBuilder.Entity<EmployeeSkill>()
             .HasIndex(es => new { es.EmployeeId, es.SkillId })
             .IsUnique();
 
-        // Add check constraint for proficiency level (1-5)
         modelBuilder.Entity<EmployeeSkill>()
-            .ToTable(t => t.HasCheckConstraint("CK_EmployeeSkill_ProficiencyLevel", 
-                "[ProficiencyLevel] >= 1 AND [ProficiencyLevel] <= 5"));
+            .ToTable(t => t.HasCheckConstraint(
+                "CK_EmployeeSkill_ProficiencyLevel",
+                "ProficiencyLevel >= 1 AND ProficiencyLevel <= 5"));
 
         modelBuilder.Entity<EmployeeSkill>()
             .Property(es => es.Notes)
             .HasMaxLength(500);
 
-        // TransferHistory configuration
         modelBuilder.Entity<TransferHistory>()
             .HasOne(th => th.Employee)
             .WithMany(e => e.TransferHistory)
@@ -182,13 +182,19 @@ public class TrainingMatrixDbContext : DbContext
             .HasForeignKey(th => th.ToDepartmentId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // TrainingTasks configuration
-        modelBuilder.Entity<TrainingTask>()
-            .ToTable("TrainingTasks");
+        modelBuilder.Entity<TrainingAttachment>()
+            .HasOne(ta => ta.EmployeeTraining)
+            .WithMany(et => et.Attachments)
+            .HasForeignKey(ta => ta.EmployeeTrainingId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-        // TrainingTaskSkills configuration
+        modelBuilder.Entity<TrainingTask>()
+            .HasOne(t => t.Department)
+            .WithMany()
+            .HasForeignKey(t => t.DepartmentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         modelBuilder.Entity<TrainingTaskSkill>()
-            .ToTable("TrainingTaskSkills")
             .HasKey(ts => new { ts.TrainingTaskId, ts.SkillId });
 
         modelBuilder.Entity<TrainingTaskSkill>()
@@ -204,9 +210,33 @@ public class TrainingMatrixDbContext : DbContext
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<EmployeeTrainingTask>()
+            .HasOne(ett => ett.Employee)
+            .WithMany()
+            .HasForeignKey(ett => ett.EmployeeId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<EmployeeTrainingTask>()
+            .HasOne(ett => ett.TrainingTask)
+            .WithMany()
+            .HasForeignKey(ett => ett.TrainingTaskId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<EmployeeTrainingTask>()
             .HasOne(ett => ett.Department)
             .WithMany()
             .HasForeignKey(ett => ett.DepartmentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<EmployeeTrainingTaskSkill>()
+            .HasOne(etts => etts.EmployeeTrainingTask)
+            .WithMany(ett => ett.EmployeeTrainingTaskSkills)
+            .HasForeignKey(etts => etts.EmployeeTrainingTaskId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<EmployeeTrainingTaskSkill>()
+            .HasOne(etts => etts.Skill)
+            .WithMany()
+            .HasForeignKey(etts => etts.SkillId)
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<AuditLog>()

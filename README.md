@@ -15,92 +15,102 @@ A web application for managing employee training, skills, and compliance built w
 ## Prerequisites
 
 - .NET 10 SDK
-- SQL Server (local or remote)
+- No database server required — uses **SQLite** locally
 
-## Setup
-
-### Option A: Restore database backup
-
-Restore `TrainingMatrixDb.bak` to your SQL Server instance using SQL Server Management Studio (SSMS) or:
-
-```bash
-sqlcmd -S <server> -Q "RESTORE DATABASE TrainingMatrix FROM DISK='<path>\TrainingMatrixDb.bak'"
-```
-
-### Option B: Run the SQL script
-
-```bash
-sqlcmd -S <server> -i script.sql
-sqlcmd -S <server> -d TrainingMatrix -i Migrations/20250619_AddAuditLogs.sql
-```
-
-To load seed data:
-
-```bash
-sqlcmd -S <server> -d TrainingMatrix -i seeddata.sql
-```
-
-## Configuration
-
-**Do not commit production credentials.** Set the connection string via one of:
-
-1. **User Secrets** (recommended for local dev):
-
-```bash
-dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=<your-server>;Database=TrainingMatrix;Trusted_Connection=True;TrustServerCertificate=True;"
-```
-
-2. **Environment variable**:
-
-```bash
-export ConnectionStrings__DefaultConnection="Server=<your-server>;Database=TrainingMatrix;Trusted_Connection=True;TrustServerCertificate=True;"
-```
-
-3. **Local override file** (`appsettings.Local.json`, git-ignored):
-
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=<your-server>;Database=TrainingMatrix;Trusted_Connection=True;TrustServerCertificate=True;"
-  }
-}
-```
-
-The committed `appsettings.json` contains a localhost placeholder only.
-
-## Running the Application
+## Quick Start
 
 ```bash
 dotnet restore TrainingSkillsApp.csproj
 dotnet run --project TrainingSkillsApp.csproj
 ```
 
+On first run the app will:
+
+1. Create `App_Data/TrainingMatrix.db` (SQLite file)
+2. Apply EF Core migrations automatically
+3. Seed sample departments, employees, skills, and compliance data
+
 Browse to `https://localhost:5001` (see `Properties/launchSettings.json`).
 
-The application uses Windows Authentication (Negotiate). Ensure your IIS or Kestrel environment supports Negotiate authentication. On Linux/macOS during development, authentication may require additional configuration.
+## Local Database
+
+The default connection string stores the database as a single file:
+
+```
+Data Source=App_Data/TrainingMatrix.db
+```
+
+This is configured in `appsettings.json` and `appsettings.Development.json`. No SQL Server, Docker, or external server is needed.
+
+### Reset / rebuild the database
+
+**Option A — delete the file and restart:**
+
+```bash
+rm -f App_Data/TrainingMatrix.db App_Data/TrainingMatrix.db-*
+dotnet run --project TrainingSkillsApp.csproj
+```
+
+**Option B — recreate on startup** (set in `appsettings.Development.json`):
+
+```json
+{
+  "Database": {
+    "RecreateOnStartup": true
+  }
+}
+```
+
+Set back to `false` after the next run, or the database will be wiped every startup.
+
+### EF Core migrations
+
+To add schema changes after editing models:
+
+```bash
+dotnet ef migrations add <MigrationName> --project TrainingSkillsApp.csproj
+dotnet ef database update --project TrainingSkillsApp.csproj
+```
+
+Migrations are applied automatically on app startup via `DbInitializer`.
+
+## Configuration
+
+Override the database path with User Secrets or environment variables:
+
+```bash
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Data Source=App_Data/TrainingMatrix.db"
+```
+
+Or:
+
+```bash
+export ConnectionStrings__DefaultConnection="Data Source=App_Data/TrainingMatrix.db"
+```
+
+## Authentication
+
+- **Windows (IIS/Kestrel on Windows)**: Uses Negotiate (Windows Authentication); all pages require sign-in
+- **Linux/macOS local dev**: Auth is skipped so you can run without Active Directory
+
+## Legacy SQL Server Scripts
+
+The `script.sql`, `seeddata.sql`, and `TrainingMatrixDb.bak` files are from the original on-premises SQL Server deployment. They are **not required** for local development with SQLite.
 
 ## Project Structure
 
 | Path | Purpose |
 |------|---------|
-| `Pages/` | Razor Pages UI (Departments, Employees, Skills, Courses, Compliance) |
-| `Services/` | Business logic (compliance, audit, file storage, transfers) |
+| `Pages/` | Razor Pages UI |
+| `Services/` | Business logic (compliance, audit, file storage) |
 | `Models/` | Entity Framework domain models |
-| `Data/` | DbContext and database configuration |
-| `Migrations/` | EF migrations and supplemental SQL scripts |
-| `script.sql` | Full database schema |
-| `seeddata.sql` | Sample data including compliance requirements |
+| `Data/` | DbContext, migrations, seeder, initializer |
+| `App_Data/` | Local SQLite database (git-ignored) |
+| `Migrations/` | EF Core migrations |
 
 ## Tech Stack
 
 - ASP.NET Core 10 Razor Pages
-- Entity Framework Core 10
-- SQL Server
+- Entity Framework Core 10 + SQLite
 - Bootstrap 5
-- Windows Authentication
-
-## Security Notes
-
-- Connection strings and secrets must not be committed to source control
-- Uploaded files are stored outside `wwwroot` in `App_Data/uploads/training` with type and size validation
-- All pages require authentication via the default authorization policy
+- Windows Authentication (production on Windows only)

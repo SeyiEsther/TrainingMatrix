@@ -356,6 +356,13 @@ healthchecksdb
 # Backup folder for Package Reference Convert tool in Visual Studio 2017
 MigrationBackup/
 
+# Local SQLite database files
+App_Data/*.db
+App_Data/*.db-*
+*.db
+*.db-shm
+*.db-wal
+
 # Local secrets and overrides
 appsettings.Local.json
 appsettings.*.local.json
