@@ -16,6 +16,7 @@ builder.Services.AddDbContext<TrainingMatrixDbContext>(options =>
 builder.Services.AddScoped<ITrainingMatrixService, TrainingMatrixService>();
 builder.Services.AddScoped<IEmployeeTransferService, EmployeeTransferService>();
 builder.Services.AddScoped<DepartmentSkillComplianceService>();
+builder.Services.AddScoped<IAuditService, AuditService>();
 
 // Add session support for user context
 builder.Services.AddSession(options =>
@@ -53,8 +54,9 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-app.UseAuthorization();
 app.UseSession();
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapRazorPages()
    .WithStaticAssets();
 

@@ -16,6 +16,7 @@ public class DepartmentSkillComplianceService
     public async Task<List<DepartmentSkillComplianceViewModel>> GetComplianceReportAsync(int? departmentId = null)
     {
         var requirementsQuery = _context.DepartmentSkillRequirements
+            .AsNoTracking()
             .Include(dsr => dsr.Department)
             .Include(dsr => dsr.Skill)
             .Where(dsr => dsr.IsActive && dsr.Department.IsActive);
@@ -27,21 +28,30 @@ public class DepartmentSkillComplianceService
 
         var requirements = await requirementsQuery.ToListAsync();
 
-        // Load employee skills for qualifying employees
         var employeeSkills = await _context.EmployeeSkills
-            .Include(es => es.Employee)
+            .AsNoTracking()
             .Where(es => es.Employee.IsActive)
+            .Select(es => new
+            {
+                es.Employee.DepartmentId,
+                es.SkillId,
+                es.ProficiencyLevel
+            })
             .ToListAsync();
+
+        var skillsByDepartment = employeeSkills
+            .GroupBy(es => (es.DepartmentId, es.SkillId))
+            .ToDictionary(
+                g => g.Key,
+                g => g.Select(x => x.ProficiencyLevel).ToList());
 
         var results = new List<DepartmentSkillComplianceViewModel>();
 
         foreach (var req in requirements)
         {
-            // Count employees in this department who meet or exceed the minimum proficiency level for this skill
-            var qualifiedCount = employeeSkills.Count(es =>
-                es.Employee.DepartmentId == req.DepartmentId &&
-                es.SkillId == req.SkillId &&
-                es.ProficiencyLevel >= req.MinimumProficiencyLevel);
+            var key = (req.DepartmentId, req.SkillId);
+            var levels = skillsByDepartment.GetValueOrDefault(key, []);
+            var qualifiedCount = levels.Count(level => level >= req.MinimumProficiencyLevel);
 
             var shortfall = Math.Max(0, req.RequiredCount - qualifiedCount);
             var percentage = req.RequiredCount > 0

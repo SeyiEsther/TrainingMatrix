@@ -36,7 +36,7 @@
         <div class="col-md-6">
             <form method="get">
                 <div class="input-group">
-                    <input type="text" name="searchString" value="@ViewData["SearchString"]" 
+                    <input type="text" name="searchString" value="@Model.SearchString" 
                            class="form-control" placeholder="Search departments...">
                     <button class="btn btn-outline-primary" type="submit">
                         <i class="bi bi-search"></i> Search
@@ -168,16 +168,16 @@
                 <nav aria-label="Department pagination" class="mt-4">
                     <ul class="pagination justify-content-center">
                         <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
-                            <a class="page-link" href="?page=@(Model.CurrentPage - 1)@(ViewData["SearchString"] != null ? "&searchString=" + ViewData["SearchString"] : "")" tabindex="-1">Previous</a>
+                            <a class="page-link" href="?page=@(Model.CurrentPage - 1)@(!string.IsNullOrEmpty(Model.SearchString) ? "&searchString=" + Uri.EscapeDataString(Model.SearchString) : "")" tabindex="-1">Previous</a>
                         </li>
                         @for (int i = 1; i <= Model.TotalPages; i++)
                         {
                             <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                                <a class="page-link" href="?page=@i@(ViewData["SearchString"] != null ? "&searchString=" + ViewData["SearchString"] : "")">@i</a>
+                                <a class="page-link" href="?page=@i@(!string.IsNullOrEmpty(Model.SearchString) ? "&searchString=" + Uri.EscapeDataString(Model.SearchString) : "")">@i</a>
                             </li>
                         }
                         <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
-                            <a class="page-link" href="?page=@(Model.CurrentPage + 1)@(ViewData["SearchString"] != null ? "&searchString=" + ViewData["SearchString"] : "")">Next</a>
+                            <a class="page-link" href="?page=@(Model.CurrentPage + 1)@(!string.IsNullOrEmpty(Model.SearchString) ? "&searchString=" + Uri.EscapeDataString(Model.SearchString) : "")">Next</a>
                         </li>
                     </ul>
                 </nav>

@@ -3,16 +3,19 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using TrainingMatrixApp.Data;
 using TrainingMatrixApp.Models;
+using TrainingMatrixApp.Services;
 
 namespace TrainingMatrixApp.Pages.Departments;
 
 public class DeleteModel : PageModel
 {
     private readonly TrainingMatrixDbContext _context;
+    private readonly IAuditService _auditService;
 
-    public DeleteModel(TrainingMatrixDbContext context)
+    public DeleteModel(TrainingMatrixDbContext context, IAuditService auditService)
     {
         _context = context;
+        _auditService = auditService;
     }
 
     [BindProperty]
@@ -42,7 +45,6 @@ public class DeleteModel : PageModel
 
         Department = department;
 
-        // Check deletion constraints
         EmployeeCount = await _context.Employees.CountAsync(e => e.DepartmentId == id && e.IsActive);
         SubDepartmentCount = await _context.Departments.CountAsync(d => d.ParentDepartmentId == id && d.IsActive);
 
@@ -77,7 +79,6 @@ public class DeleteModel : PageModel
             return NotFound();
         }
 
-        // Check constraints again
         var employeeCount = await _context.Employees.CountAsync(e => e.DepartmentId == id && e.IsActive);
         var subDeptCount = await _context.Departments.CountAsync(d => d.ParentDepartmentId == id && d.IsActive);
 
@@ -87,9 +88,14 @@ public class DeleteModel : PageModel
             return RedirectToPage("./Index");
         }
 
-        // Soft delete - just mark as inactive
         department.IsActive = false;
         await _context.SaveChangesAsync();
+
+        await _auditService.LogAsync(
+            "Delete",
+            "Department",
+            department.Id.ToString(),
+            $"Department '{department.Name}' deactivated.");
 
         TempData["SuccessMessage"] = $"Department '{department.Name}' has been deactivated.";
         return RedirectToPage("./Index");

@@ -356,8 +356,10 @@ healthchecksdb
 # Backup folder for Package Reference Convert tool in Visual Studio 2017
 MigrationBackup/
 
-# Ionide (cross platform F# VS Code tools) working folder
-.ionide/
+# Local secrets and overrides
+appsettings.Local.json
+appsettings.*.local.json
+**/secrets.json
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd

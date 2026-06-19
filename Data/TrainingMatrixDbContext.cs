@@ -208,5 +208,31 @@ public class TrainingMatrixDbContext : DbContext
             .WithMany()
             .HasForeignKey(ett => ett.DepartmentId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<AuditLog>()
+            .Property(a => a.ActionType)
+            .HasMaxLength(50)
+            .IsRequired();
+
+        modelBuilder.Entity<AuditLog>()
+            .Property(a => a.EntityType)
+            .HasMaxLength(100)
+            .IsRequired();
+
+        modelBuilder.Entity<AuditLog>()
+            .Property(a => a.EntityId)
+            .HasMaxLength(100)
+            .IsRequired();
+
+        modelBuilder.Entity<AuditLog>()
+            .Property(a => a.PerformedBy)
+            .HasMaxLength(256)
+            .IsRequired();
+
+        modelBuilder.Entity<AuditLog>()
+            .HasIndex(a => a.Timestamp);
+
+        modelBuilder.Entity<AuditLog>()
+            .HasIndex(a => new { a.EntityType, a.EntityId });
     }
 }

@@ -4,16 +4,19 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TrainingMatrixApp.Data;
 using TrainingMatrixApp.Models;
+using TrainingMatrixApp.Services;
 
 namespace TrainingMatrixApp.Pages.Departments;
 
 public class EditModel : PageModel
 {
     private readonly TrainingMatrixDbContext _context;
+    private readonly IAuditService _auditService;
 
-    public EditModel(TrainingMatrixDbContext context)
+    public EditModel(TrainingMatrixDbContext context, IAuditService auditService)
     {
         _context = context;
+        _auditService = auditService;
     }
 
     [BindProperty]
@@ -52,7 +55,6 @@ public class EditModel : PageModel
             return Page();
         }
 
-        // Check if department name already exists (excluding current department)
         var existingDept = await _context.Departments
             .FirstOrDefaultAsync(d => d.Name == Department.Name && d.Id != Department.Id && d.IsActive);
 
@@ -63,7 +65,6 @@ public class EditModel : PageModel
             return Page();
         }
 
-        // Prevent department from being its own parent
         if (Department.ParentDepartmentId == Department.Id)
         {
             ModelState.AddModelError("Department.ParentDepartmentId", "A department cannot be its own parent.");
@@ -71,20 +72,30 @@ public class EditModel : PageModel
             return Page();
         }
 
-        // Prevent circular reference (department cannot have itself as ancestor)
         if (Department.ParentDepartmentId.HasValue)
         {
             var hasCircularRef = await HasCircularReferenceAsync(Department.Id, Department.ParentDepartmentId.Value);
             if (hasCircularRef)
             {
-                ModelState.AddModelError("Department.ParentDepartmentId", 
+                ModelState.AddModelError("Department.ParentDepartmentId",
                     "Invalid parent department selection. This would create a circular reference.");
                 await LoadDropdownsAsync(Department.Id);
                 return Page();
             }
         }
 
-        _context.Attach(Department).State = EntityState.Modified;
+        var department = await _context.Departments.FindAsync(Department.Id);
+        if (department == null)
+        {
+            return NotFound();
+        }
+
+        department.Name = Department.Name;
+        department.Description = Department.Description;
+        department.ParentDepartmentId = Department.ParentDepartmentId;
+        department.HeadOfDepartmentId = Department.HeadOfDepartmentId;
+        department.SapWorkCentre = Department.SapWorkCentre;
+        department.IsActive = Department.IsActive;
 
         try
         {
@@ -96,13 +107,17 @@ public class EditModel : PageModel
             {
                 return NotFound();
             }
-            else
-            {
-                throw;
-            }
+
+            throw;
         }
 
-        TempData["SuccessMessage"] = $"Department '{Department.Name}' has been updated successfully.";
+        await _auditService.LogAsync(
+            "Update",
+            "Department",
+            department.Id.ToString(),
+            $"Department '{department.Name}' updated.");
+
+        TempData["SuccessMessage"] = $"Department '{department.Name}' has been updated successfully.";
         return RedirectToPage("./Index");
     }
 
@@ -113,19 +128,19 @@ public class EditModel : PageModel
 
     private async Task<bool> HasCircularReferenceAsync(int departmentId, int proposedParentId)
     {
-        var currentParentId = proposedParentId;
-        while (currentParentId != null)
+        int? currentParentId = proposedParentId;
+        while (currentParentId.HasValue)
         {
-            if (currentParentId == departmentId)
+            if (currentParentId.Value == departmentId)
             {
                 return true;
             }
 
             var parent = await _context.Departments
-                .FirstOrDefaultAsync(d => d.Id == currentParentId);
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.Id == currentParentId.Value);
 
-            currentParentId = parent?.ParentDepartmentId ?? 0;
-            if (currentParentId == 0) break;
+            currentParentId = parent?.ParentDepartmentId;
         }
 
         return false;
@@ -133,7 +148,6 @@ public class EditModel : PageModel
 
     private async Task LoadDropdownsAsync(int currentDepartmentId)
     {
-        // Load only top-level departments for parent selection (excluding current department)
         var parentDepartments = await _context.Departments
             .Where(d => d.IsActive && d.ParentDepartmentId == null && d.Id != currentDepartmentId)
             .OrderBy(d => d.Name)
@@ -141,7 +155,6 @@ public class EditModel : PageModel
 
         ParentDepartmentList = new SelectList(parentDepartments, "Id", "Name");
 
-        // Load employees in this department for head of department
         var employees = await _context.Employees
             .Where(e => e.IsActive && (e.DepartmentId == currentDepartmentId || !_context.Departments.Any(d => d.HeadOfDepartmentId == e.Id)))
             .OrderBy(e => e.LastName)

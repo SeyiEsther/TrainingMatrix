@@ -133,3 +133,19 @@ PRINT 'Training Courses: 15';
 PRINT 'Employees: 12';
 PRINT 'Employee Skills: 16';
 PRINT 'Employee Trainings: 14';
+
+-- Seed Department Skill Requirements for compliance dashboard
+INSERT INTO [dbo].[DepartmentSkillRequirements] (DepartmentId, SkillId, RequiredCount, MinimumProficiencyLevel, Priority, IsActive, CreatedDate)
+VALUES
+    (5, 1, 2, 3, 'High', 1, GETUTCDATE()),
+    (5, 3, 2, 3, 'High', 1, GETUTCDATE()),
+    (5, 5, 1, 2, 'Medium', 1, GETUTCDATE()),
+    (7, 6, 3, 3, 'Critical', 1, GETUTCDATE()),
+    (7, 9, 2, 3, 'High', 1, GETUTCDATE()),
+    (7, 15, 1, 2, 'Medium', 1, GETUTCDATE()),
+    (8, 8, 2, 4, 'Critical', 1, GETUTCDATE()),
+    (8, 9, 2, 3, 'High', 1, GETUTCDATE()),
+    (4, 7, 2, 4, 'Critical', 1, GETUTCDATE()),
+    (4, 14, 1, 3, 'High', 1, GETUTCDATE());
+
+PRINT 'Department Skill Requirements: 10';
