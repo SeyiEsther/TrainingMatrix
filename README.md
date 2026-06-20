@@ -1,6 +1,6 @@
 # Training Matrix
 
-A web application for managing employee training, skills, and compliance built with ASP.NET Core 10 Razor Pages. Sample data reflects **regional logistics hubs**, **mid-sized food processing plants**, and **growing e-commerce operations**.
+A web application for managing employee training, skills, and compliance built with ASP.NET Core 10 Razor Pages.
 
 ## What It Does
 
@@ -28,7 +28,7 @@ On first run the app will:
 
 1. Create `App_Data/TrainingMatrix.db` (SQLite file)
 2. Apply EF Core migrations automatically
-3. Seed sample data for logistics hubs, food processing, and e-commerce operations
+3. Seed sample departments, employees, skills, and compliance data
 
 Browse to `https://localhost:5001` (see `Properties/launchSettings.json`).
 
