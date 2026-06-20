@@ -4,74 +4,95 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Training Matrix</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand fw-bold" asp-page="/Index">
-                <i class="bi bi-mortarboard-fill"></i> Training Matrix
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" asp-page="/Index">
-                            <i class="bi bi-speedometer2"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-page="/Departments/Index">
-                            <i class="bi bi-building"></i> Departments
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-page="/Employees/Index">
-                            <i class="bi bi-people-fill"></i> Employees
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-page="/Skills/Index">
-                            <i class="bi bi-tools"></i> Skills
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-page="/TrainingCourses/Index">
-                            <i class="bi bi-journal-bookmark-fill"></i> Training Courses
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-page="/TrainingTasks/Index">
-                            <i class="bi bi-list-check"></i> Training Tasks
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-page="/Compliance/Index">
-                            <i class="bi bi-shield-check"></i> Compliance
-                        </a>
-                    </li>
-                </ul>
-                <span class="navbar-text text-light">
-                    <i class="bi bi-person-circle"></i> @User?.Identity?.Name
-                </span>
+<body class="tm-app">
+    @{
+        var currentPath = Context.Request.Path.Value ?? "/";
+        bool NavActive(string segment) => currentPath.Equals(segment, StringComparison.OrdinalIgnoreCase)
+            || currentPath.StartsWith(segment + "/", StringComparison.OrdinalIgnoreCase)
+            || (segment == "/Index" && currentPath == "/");
+    }
+
+    <div class="tm-shell">
+        <aside class="tm-sidebar" id="tmSidebar" aria-label="Main navigation">
+            <div class="tm-sidebar__brand">
+                <a asp-page="/Index" class="tm-brand">
+                    <span class="tm-brand__mark"><i class="bi bi-mortarboard-fill"></i></span>
+                    <span class="tm-brand__text">
+                        <strong>Training Matrix</strong>
+                        <small>Skills &amp; Compliance</small>
+                    </span>
+                </a>
             </div>
-        </div>
-    </nav>
 
-    <main class="py-4">
-        @RenderBody()
-    </main>
+            <nav class="tm-nav">
+                <div class="tm-nav__group">
+                    <span class="tm-nav__label">Overview</span>
+                    <a class="tm-nav__link @(NavActive("/Index") ? "is-active" : "")" asp-page="/Index">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                    <a class="tm-nav__link @(NavActive("/Compliance") ? "is-active" : "")" asp-page="/Compliance/Index">
+                        <i class="bi bi-shield-check"></i> Compliance
+                    </a>
+                </div>
+                <div class="tm-nav__group">
+                    <span class="tm-nav__label">Organisation</span>
+                    <a class="tm-nav__link @(NavActive("/Departments") ? "is-active" : "")" asp-page="/Departments/Index">
+                        <i class="bi bi-building"></i> Departments
+                    </a>
+                    <a class="tm-nav__link @(NavActive("/Employees") ? "is-active" : "")" asp-page="/Employees/Index">
+                        <i class="bi bi-people-fill"></i> Employees
+                    </a>
+                </div>
+                <div class="tm-nav__group">
+                    <span class="tm-nav__label">Training</span>
+                    <a class="tm-nav__link @(NavActive("/Skills") ? "is-active" : "")" asp-page="/Skills/Index">
+                        <i class="bi bi-tools"></i> Skills
+                    </a>
+                    <a class="tm-nav__link @(NavActive("/TrainingCourses") ? "is-active" : "")" asp-page="/TrainingCourses/Index">
+                        <i class="bi bi-journal-bookmark-fill"></i> Courses
+                    </a>
+                    <a class="tm-nav__link @(NavActive("/TrainingTasks") ? "is-active" : "")" asp-page="/TrainingTasks/Index">
+                        <i class="bi bi-list-check"></i> Tasks
+                    </a>
+                </div>
+            </nav>
 
-    <footer class="footer bg-light border-top py-3 mt-auto">
-        <div class="container-fluid text-center text-muted">
-            <small>&copy; @DateTime.Now.Year - Training Matrix | Employee Skills &amp; Compliance Management</small>
+            <div class="tm-sidebar__footer">
+                <div class="tm-user">
+                    <i class="bi bi-person-circle"></i>
+                    <span>@(User?.Identity?.Name ?? "Local user")</span>
+                </div>
+            </div>
+        </aside>
+
+        <div class="tm-main">
+            <header class="tm-topbar">
+                <button type="button" class="tm-topbar__toggle btn btn-link" id="sidebarToggle" aria-label="Toggle navigation" aria-expanded="true" aria-controls="tmSidebar">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="tm-topbar__title">@ViewData["Title"]</div>
+            </header>
+
+            <main class="tm-content">
+                <div class="tm-container">
+                    @RenderBody()
+                </div>
+            </main>
+
+            <footer class="tm-footer">
+                <small>&copy; @DateTime.Now.Year Training Matrix</small>
+            </footer>
         </div>
-    </footer>
+    </div>
+
+    <div class="tm-sidebar-backdrop" id="sidebarBackdrop" hidden></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

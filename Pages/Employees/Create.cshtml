@@ -4,85 +4,75 @@
     ViewData["Title"] = "Create Employee";
 }
 
-<div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col">
-            <h1 class="display-4"><i class="bi bi-person-plus-fill"></i> Create Employee</h1>
-        </div>
-        <div class="col-auto">
-            <a asp-page="Index" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left"></i> Back to List
-            </a>
-        </div>
+<div class="page-header">
+    @await Html.PartialAsync("_PageHeader", new PageHeaderModel {
+        Title = "Create employee",
+        Subtitle = "Add a new person to the training matrix",
+        Icon = "bi-person-plus-fill"
+    })
+    <div class="page-header__actions">
+        <a asp-page="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back</a>
     </div>
+</div>
 
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Employee Details</h5>
+<div class="tm-form-card">
+    <div class="tm-form-card__header">
+        <h2>Employee details</h2>
+    </div>
+    <div class="tm-form-card__body">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="Employee.FirstName" class="form-label"></label>
+                    <input asp-for="Employee.FirstName" class="form-control" placeholder="First name" />
+                    <span asp-validation-for="Employee.FirstName" class="text-danger small"></span>
                 </div>
-                <div class="card-body">
-                    <form method="post">
-                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
-
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label asp-for="Employee.FirstName" class="form-label fw-semibold"></label>
-                                <input asp-for="Employee.FirstName" class="form-control" placeholder="First name" />
-                                <span asp-validation-for="Employee.FirstName" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-6">
-                                <label asp-for="Employee.LastName" class="form-label fw-semibold"></label>
-                                <input asp-for="Employee.LastName" class="form-control" placeholder="Last name" />
-                                <span asp-validation-for="Employee.LastName" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-6">
-                                <label asp-for="Employee.EmployeeNumber" class="form-label fw-semibold"></label>
-                                <input asp-for="Employee.EmployeeNumber" class="form-control" placeholder="e.g. EMP001" />
-                                <span asp-validation-for="Employee.EmployeeNumber" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-6">
-                                <label asp-for="Employee.HireDate" class="form-label fw-semibold"></label>
-                                <input asp-for="Employee.HireDate" class="form-control" type="date" />
-                                <span asp-validation-for="Employee.HireDate" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-6">
-                                <label asp-for="Employee.Email" class="form-label fw-semibold"></label>
-                                <input asp-for="Employee.Email" class="form-control" placeholder="email@example.com" />
-                                <span asp-validation-for="Employee.Email" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-6">
-                                <label asp-for="Employee.PhoneNumber" class="form-label fw-semibold"></label>
-                                <input asp-for="Employee.PhoneNumber" class="form-control" placeholder="Phone number" />
-                                <span asp-validation-for="Employee.PhoneNumber" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-6">
-                                <label asp-for="Employee.DepartmentId" class="form-label fw-semibold"></label>
-                                <select asp-for="Employee.DepartmentId" asp-items="Model.DepartmentList" class="form-select">
-                                    <option value="">-- Select Department --</option>
-                                </select>
-                                <span asp-validation-for="Employee.DepartmentId" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-6">
-                                <label asp-for="Employee.Shift" class="form-label fw-semibold"></label>
-                                <input asp-for="Employee.Shift" class="form-control" type="number" placeholder="Shift number (optional)" />
-                                <span asp-validation-for="Employee.Shift" class="text-danger"></span>
-                            </div>
-                        </div>
-
-                        <div class="mt-4 d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-check-circle"></i> Create Employee
-                            </button>
-                            <a asp-page="Index" class="btn btn-outline-secondary">
-                                <i class="bi bi-x-circle"></i> Cancel
-                            </a>
-                        </div>
-                    </form>
+                <div class="col-md-6">
+                    <label asp-for="Employee.LastName" class="form-label"></label>
+                    <input asp-for="Employee.LastName" class="form-control" placeholder="Last name" />
+                    <span asp-validation-for="Employee.LastName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Employee.EmployeeNumber" class="form-label"></label>
+                    <input asp-for="Employee.EmployeeNumber" class="form-control" placeholder="e.g. EMP001" />
+                    <span asp-validation-for="Employee.EmployeeNumber" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Employee.HireDate" class="form-label"></label>
+                    <input asp-for="Employee.HireDate" class="form-control" type="date" />
+                    <span asp-validation-for="Employee.HireDate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Employee.Email" class="form-label"></label>
+                    <input asp-for="Employee.Email" class="form-control" placeholder="email@example.com" />
+                    <span asp-validation-for="Employee.Email" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Employee.PhoneNumber" class="form-label"></label>
+                    <input asp-for="Employee.PhoneNumber" class="form-control" placeholder="Phone number" />
+                    <span asp-validation-for="Employee.PhoneNumber" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Employee.DepartmentId" class="form-label"></label>
+                    <select asp-for="Employee.DepartmentId" asp-items="Model.DepartmentList" class="form-select">
+                        <option value="">Select department</option>
+                    </select>
+                    <span asp-validation-for="Employee.DepartmentId" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Employee.Shift" class="form-label"></label>
+                    <input asp-for="Employee.Shift" class="form-control" type="number" min="1" max="3" placeholder="1, 2, or 3" />
+                    <span asp-validation-for="Employee.Shift" class="text-danger small"></span>
                 </div>
             </div>
-        </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Create employee</button>
+                <a asp-page="Index" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
     </div>
 </div>
 

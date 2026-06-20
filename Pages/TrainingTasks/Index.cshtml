@@ -4,84 +4,76 @@
     ViewData["Title"] = "Training Tasks";
 }
 
-<div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col">
-            <h1 class="display-4"><i class="bi bi-list-check"></i> Training Tasks</h1>
-            <p class="text-muted">Department training tasks and required skills</p>
-        </div>
-    </div>
+<div class="page-header">
+    @await Html.PartialAsync("_PageHeader", new PageHeaderModel {
+        Title = "Training tasks",
+        Subtitle = "Structured tasks linked to departments and required skills",
+        Icon = "bi-list-check"
+    })
+</div>
 
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <form method="get" class="input-group">
-                <input type="text" name="searchString" value="@Model.SearchString" class="form-control" placeholder="Search tasks..." />
-                <button class="btn btn-outline-primary" type="submit">
-                    <i class="bi bi-search"></i> Search
-                </button>
-            </form>
+<div class="filter-bar">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-9">
+            <label class="form-label">Search</label>
+            <input type="text" name="searchString" value="@Model.SearchString" class="form-control" placeholder="Search tasks..." />
         </div>
-    </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button class="btn btn-primary flex-grow-1" type="submit"><i class="bi bi-search"></i> Apply</button>
+            <a asp-page="Index" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
+        </div>
+    </form>
+</div>
 
-    @if (Model.TrainingTasks.Any())
-    {
-        <div class="card shadow">
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-dark">
+<div class="tm-panel">
+    <div class="tm-panel__body">
+        @if (Model.TrainingTasks.Any())
+        {
+            <div class="table-responsive">
+                <table class="table tm-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Task</th>
+                            <th>Department</th>
+                            <th>Skills</th>
+                            <th>Target count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var task in Model.TrainingTasks)
+                        {
                             <tr>
-                                <th>Task</th>
-                                <th>Department</th>
-                                <th>Skills</th>
-                                <th>Target Count</th>
-                                <th>Sort Order</th>
+                                <td>
+                                    <div class="fw-semibold">@task.Name</div>
+                                    @if (!string.IsNullOrWhiteSpace(task.Description))
+                                    {
+                                        <small class="text-muted">@task.Description</small>
+                                    }
+                                </td>
+                                <td>@task.Department?.Name</td>
+                                <td>
+                                    @if (task.TrainingTaskSkills.Any())
+                                    {
+                                        @foreach (var skill in task.TrainingTaskSkills)
+                                        {
+                                            <span class="badge bg-light text-dark border me-1">@skill.Skill?.Name</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+                                <td>@(task.TargetEmployeeCount?.ToString() ?? "—")</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var task in Model.TrainingTasks)
-                            {
-                                <tr>
-                                    <td>
-                                        <strong>@task.Name</strong>
-                                        @if (!string.IsNullOrWhiteSpace(task.Description))
-                                        {
-                                            <div class="text-muted small">@task.Description</div>
-                                        }
-                                    </td>
-                                    <td>@task.Department?.Name</td>
-                                    <td>
-                                        @if (task.TrainingTaskSkills.Any())
-                                        {
-                                            @foreach (var skill in task.TrainingTaskSkills)
-                                            {
-                                                <span class="badge bg-info me-1">@skill.Skill?.Name</span>
-                                            }
-                                        }
-                                        else
-                                        {
-                                            <span class="text-muted">None assigned</span>
-                                        }
-                                    </td>
-                                    <td>@(task.TargetEmployeeCount?.ToString() ?? "—")</td>
-                                    <td>@(task.SortOrder?.ToString() ?? "—")</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
+                        }
+                    </tbody>
+                </table>
             </div>
-        </div>
-    }
-    else
-    {
-        <div class="alert alert-info">
-            <i class="bi bi-info-circle"></i>
-            No training tasks found.
-            @if (!string.IsNullOrWhiteSpace(Model.SearchString))
-            {
-                <span> Try clearing your search.</span>
-            }
-        </div>
-    }
+        }
+        else
+        {
+            @await Html.PartialAsync("_EmptyState", new EmptyStateModel { Icon = "bi-list-check", Message = "No training tasks found." })
+        }
+    </div>
 </div>
