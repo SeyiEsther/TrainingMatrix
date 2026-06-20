@@ -1,0 +1,17 @@
+@model TrainingMatrixApp.ViewModels.PageHeaderModel
+
+<div class="page-header__main">
+    @if (!string.IsNullOrEmpty(Model.Icon))
+    {
+        <div class="page-header__icon" aria-hidden="true">
+            <i class="bi @Model.Icon"></i>
+        </div>
+    }
+    <div>
+        <h1 class="page-header__title">@Model.Title</h1>
+        @if (!string.IsNullOrEmpty(Model.Subtitle))
+        {
+            <p class="page-header__subtitle">@Model.Subtitle</p>
+        }
+    </div>
+</div>

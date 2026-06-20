@@ -1,0 +1,12 @@
+@model TrainingMatrixApp.ViewModels.EmptyStateModel
+
+<div class="empty-state">
+    <div class="empty-state__icon" aria-hidden="true">
+        <i class="bi @Model.Icon"></i>
+    </div>
+    <p class="empty-state__message">@Model.Message</p>
+    @if (!string.IsNullOrEmpty(Model.ActionText) && !string.IsNullOrEmpty(Model.ActionUrl))
+    {
+        <a href="@Model.ActionUrl" class="btn btn-primary btn-sm mt-2">@Model.ActionText</a>
+    }
+</div>
